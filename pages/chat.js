@@ -29,19 +29,7 @@ function initializeChatView() {
   const messageInput = document.getElementById('message-input');
   const sendButton = document.getElementById('send-btn');
   const syncVectorButton = document.getElementById('sync-vector-btn');
-  const openSidebarButton = document.getElementById('open-sidebar-btn');
 
-  // Sidebar button handling
-  openSidebarButton.addEventListener('click', async () => {
-    try {
-      // Get the current window
-      const currentWindow = await chrome.windows.getCurrent();
-      await chrome.sidePanel.open({ windowId: currentWindow.id });
-    } catch (error) {
-      console.error('Failed to open sidebar:', error);
-      appendMessage('Failed to open sidebar. Please try again.', 'error');
-    }
-  });
 
   // Set up vector store status callback
   vectorStoreService.setStatusCallback((message) => {
@@ -101,11 +89,13 @@ function initializeChatView() {
       }
 
       // Add message to thread
+      const currentDate = new Date().toLocaleString();
+      
       await vectorStoreService.openai.beta.threads.messages.create(
         currentThread.id,
         {
           role: 'user',
-          content: message
+          content: message+` - Today's date and time is ${currentDate}`
         }
       );
 

@@ -162,31 +162,7 @@ async function saveSettings() {
     const { twosAuth } = await chrome.storage.local.get(['twosAuth']);
     
     if (twosAuth?.userId && twosAuth?.token) {
-      saveButton.textContent = 'Syncing...';
-      saveButton.disabled = true;
-      
-      try {
-        // Initialize vector store service with new OpenAI key
-        vectorStoreService.initialize();
-        
-        // Sync data to vector store
-        await vectorStoreService.syncToVectorStore(twosAuth.userId, twosAuth.token);
-        
-        // Show success message
-        saveButton.textContent = 'Saved!';
-        saveButton.style.backgroundColor = '#28a745';
-        
-        // Show open chat button if all settings are present
-        if (await checkSettings()) {
-          openChatButton.style.display = 'block';
-        }
-      } catch (error) {
-        console.error('Error syncing to vector store:', error);
-        alert('Error syncing to vector store. Please try again.');
-        saveButton.textContent = 'Save';
-        saveButton.style.backgroundColor = '#0084ff';
-      }
-    } else {
+
       // Show success message without syncing
       saveButton.textContent = 'Saved!';
       saveButton.style.backgroundColor = '#28a745';

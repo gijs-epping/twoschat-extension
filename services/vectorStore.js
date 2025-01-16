@@ -226,27 +226,7 @@ class VectorStoreService {
                 }
             );
 
-            // Wait for vector store processing to complete
-            this.updateStatus('Processing files in vector store...');
-            let isProcessing = true;
-            while (isProcessing) {
-                const status = await this.openai.beta.vectorStores.fileBatches.retrieve(
-                    vectorStore.id,
-                    fileBatch.id
-                );
-                
-                if (status.status === 'succeeded') {
-                    isProcessing = false;
-                    this.updateStatus('Vector store processing completed');
-                } else if (status.status === 'failed') {
-                    throw new Error(`Vector store processing failed: ${status.error?.message || 'Unknown error'}`);
-                } else {
-                    // Still processing
-                    this.updateStatus(`Processing files: ${status.processed_files || 0}/${status.total_files || fileIds.length} completed`);
-                    // Wait 2 seconds before checking again
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                }
-            }
+            this.updateStatus('Files and vector created, indeing while take a while, check you assistant ');
 
             // Create new assistant with updated vector store
             this.updateStatus('Creating assistant...');
@@ -278,7 +258,7 @@ class VectorStoreService {
         }
 
         try {
-            const currentDate = new Date().toLocaleString();
+
             const assistant = await this.openai.beta.assistants.create({
                 instructions: `You are a helpful assistant that provides information based on the user's TwosApp data. 
 Use the vector store to search through their notes and provide relevant information.
@@ -289,7 +269,6 @@ When answering questions, try to:
     4. Quote specific parts of notes when they directly answer the user's question
     5. ALWAYS RETURN MARKDOWN
     6. don't add file references in the response
-    7. Today's date and time is ${currentDate}
     `,
                 model: "gpt4o-mini",
                 tools: [{"type": "file_search"}],
