@@ -7364,9 +7364,8 @@ When answering questions, try to:
     3. Include relevant dates and context from the stored data
     4. Quote specific parts of notes when they directly answer the user's question
     5. ALWAYS RETURN MARKDOWN
-    6. don't add file references in the response
-    `,
-        model: "gpt4o-mini",
+    6. don't add file references in the response`,
+        model: "gpt-4o-mini",
         tools: [{ "type": "file_search" }],
         name: "Twosapp Chat ",
         tool_resources: {
