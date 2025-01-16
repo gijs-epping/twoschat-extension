@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TwosChat Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="container">
+    <div class="section">
+      <h2>Welcome to TwosChat </h2>
+      
+      <div id="login-form" class="login-form">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Enter your username">
+        </div>
+        
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password">
+        </div>
+        
+        <button id="login-btn" class="login-btn">Login</button>
+        
+        <div id="auth-status" class="status-text"></div>
+      </div>
+    </div>
+    
+    <div id="settings-form" class="section" style="display: none;">
+      <h3>OpenAI Settings</h3>
+      <div class="input-group">
+        <input type="password" id="openai-token" placeholder="Enter OpenAI API Key">
+        <button id="save-btn">Save</button>
+      </div>
+      <div class="input-group" style="margin-top: 20px;">
+        <button id="open-chat-btn" class="login-btn" style="display: none;">Open TwosChat</button>
+      </div>
+    </div>
+  </div>
+  <script src="settings.js" type="module"></script>
+</body>
+</html>

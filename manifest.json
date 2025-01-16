@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "TwosChat",
+  "version": "1.0.0",
+  "description": "AI Chat extension for TwosApp",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "activeTab",
+    "sidePanel",
+    "windows"
+  ],
+  "host_permissions": [
+    "https://www.twosapp.com/*",
+    "https://api.openai.com/*"
+  ],
+  "action": {
+    "default_title": "TwosChat",
+    "default_popup": "pages/settings.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon16.png",
+      "48": "assets/icons/icon16.png",
+      "128": "assets/icons/icon16.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon16.png",
+    "48": "assets/icons/icon16.png",
+    "128": "assets/icons/icon16.png"
+  },
+  "content_scripts": [{
+    "matches": ["https://www.twosapp.com/*"],
+    "js": ["content-scripts/twos-integration.js"]
+  }],
+  "web_accessible_resources": [{
+    "resources": [
+      "content-scripts/twos-integration.js",
+      "services/*.js",
+      "pages/*.js",
+      "dist/*.js",
+      "node_modules/**/*.js"
+    ],
+    "matches": ["https://www.twosapp.com/*", "<all_urls>"]
+  }],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "side_panel": {
+    "default_path": "pages/chat.html"
+  }
+}
