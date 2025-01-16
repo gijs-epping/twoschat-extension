@@ -7299,7 +7299,6 @@ ${entry.posts.map(
     return fileIds;
   }
   async syncToVectorStore(userId, token) {
-    var _a;
     if (!this.openai) {
       throw new Error("OpenAI client not initialized");
     }
@@ -7330,23 +7329,7 @@ ${entry.posts.map(
           file_ids: fileIds
         }
       );
-      this.updateStatus("Processing files in vector store...");
-      let isProcessing = true;
-      while (isProcessing) {
-        const status = await this.openai.beta.vectorStores.fileBatches.retrieve(
-          vectorStore.id,
-          fileBatch.id
-        );
-        if (status.status === "succeeded") {
-          isProcessing = false;
-          this.updateStatus("Vector store processing completed");
-        } else if (status.status === "failed") {
-          throw new Error(`Vector store processing failed: ${((_a = status.error) == null ? void 0 : _a.message) || "Unknown error"}`);
-        } else {
-          this.updateStatus(`Processing files: ${status.processed_files || 0}/${status.total_files || fileIds.length} completed`);
-          await new Promise((resolve) => setTimeout(resolve, 2e3));
-        }
-      }
+      this.updateStatus("Files and vector created, indeing while take a while, check you assistant ");
       this.updateStatus("Creating assistant...");
       const assistant = await this.createAssistant();
       this.updateStatus("Assistant created successfully");
