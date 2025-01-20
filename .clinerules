@@ -1,2 +1,20 @@
-You are building on windows with powershell
-you are building a chrome extension.
+# IMPORTANT RULES
+- You are building on windows with powershell
+- you are building a chrome extension.
+- USE KISS to build features.
+- The extension uses Chrome's Storage API to persist settings
+- Authentication is captured nby loging in to the app and then using the token from the app
+- The chat interface is responsive and works in various display modes
+- The extension follows Chrome's Manifest V3 requirements
+
+
+# Project description
+You are building a chrome extension for the productivity app twosapp. The chrome extenion is called Twoschat. It is a extension that is creating a openai vector database with the things (notes) from the app. The app uses the export functionality from twosapp to import the data into the vector database. 
+
+
+## features:
+    - A chat window that is using a assistant from openai to chat with there own database.
+    - A copy functionality to copy content to there twosapp or other application.
+    - Add the chat to the sidebar of Microsoft edge browser and chrome browser.
+
+

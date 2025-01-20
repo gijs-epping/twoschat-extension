@@ -90,9 +90,9 @@ class VectorStoreService {
         }
     }
 
-    async fetchTwosData(userId, token) {
-        this.updateStatus('Fetching data from Twos API...');
-        const response = await fetch('https://www.twosapp.com/apiV2/user/export', {
+    async fetchTwosData(userId, token, page = 0) {
+        this.updateStatus(`Fetching page ${page + 1} from Twos API...`);
+        const response = await fetch('https://www.twosapp.com/apiV2/user/export2', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -100,17 +100,55 @@ class VectorStoreService {
             body: JSON.stringify({
                 user_id: userId,
                 token: token,
-                page: 0
+                page: page
             })
         });
 
         if (!response.ok) {
-            throw new Error('Failed to fetch data from Twos');
+            throw new Error(`Failed to fetch data from Twos (page ${page + 1})`);
         }
 
         const data = await response.json();
-        this.updateStatus(`Data received: ${data.entries?.length || 0} entries and ${data.posts?.length || 0} posts`);
         return data;
+    }
+
+    async fetchAllTwosData(userId, token) {
+        this.updateStatus('Starting data fetch from Twos API...');
+        
+        // Fetch first page to get initial data and determine total pages
+        const firstPage = await this.fetchTwosData(userId, token, 0);
+        let allEntries = [...(firstPage.entries || [])];
+        let allPosts = [...(firstPage.posts || [])];
+        
+        // If we have 500 entries, we need to fetch more pages
+        if (firstPage.entries?.length === 500) {
+            let currentPage = 1;  // Start with page 1 since we already fetched page 0
+            let hasMoreData = true;
+            
+            while (hasMoreData) {
+                try {
+                    const pageData = await this.fetchTwosData(userId, token, currentPage);
+                    
+                    if (pageData.entries?.length > 0) {
+                        allEntries = [...allEntries, ...pageData.entries];
+                        allPosts = [...allPosts, ...pageData.posts];
+                        this.updateStatus(`Fetched page ${currentPage} (after initial page): ${pageData.entries.length} entries`);
+                    }
+                    
+                    hasMoreData = pageData.entries?.length === 500;
+                    currentPage++;
+                } catch (error) {
+                    console.error(`Error fetching page ${currentPage}:`, error);
+                    break;
+                }
+            }
+        }
+        
+        this.updateStatus(`Total data fetched: ${allEntries.length} entries and ${allPosts.length} posts`);
+        return {
+            entries: allEntries,
+            posts: allPosts
+        };
     }
 
     formatDataForVectorStore(data) {
@@ -118,9 +156,45 @@ class VectorStoreService {
             throw new Error('No entries found in Twos data');
         }
 
+        const formatPost = (post) => {
+            let prefix = '';
+            let content = post.text;
+            
+            switch (post.type) {
+                case 'none':
+                    prefix = '📝';
+                    break;
+                case 'checkbox':
+                    prefix = post.completed ? '✅' : '⬜';
+                    break;
+                case 'photo':
+                    prefix = '📷';
+                    if (post.photos && post.photos.length > 0) {
+                        content = `[Photo] ${post.text}\n  ![Photo](${post.photos[0]})`;
+                    }
+                    break;
+                case 'dash':
+                    prefix = '➖';
+                    break;
+                default:
+                    prefix = '-';
+            }
+
+            let formattedPost = `${prefix} ${content}`;
+            if (post.url) {
+                formattedPost += `\n  [Link](${post.url})`;
+            }
+            if (post.tags?.length) {
+                formattedPost += `\n  ${post.tags.map(tag => `#${tag}`).join(' ')}`;
+            }
+            return formattedPost;
+        };
+
         // Format entries with their associated posts
         const formattedEntries = data.entries.map(entry => {
             const entryPosts = data.posts.filter(post => post.entry_id === entry._id);
+            const twosLink = `https://www.twosapp.com/${entry._id}`;
+            
             return {
                 title: entry.title,
                 _id: entry._id,
@@ -131,8 +205,14 @@ class VectorStoreService {
                     type: post.type,
                     lastModified: post.lastModified,
                     url: post.url || "",
-                    tags: post.tags || []
-                }))
+                    tags: post.tags || [],
+                    completed: post.completed,
+                    photos: post.photos
+                })),
+                // Format content as markdown
+                content: `# ${entry.title}\n[View in Twos](${twosLink})\n\n${
+                    entryPosts.map(post => formatPost(post)).join('\n')
+                }`
             };
         });
 
@@ -143,13 +223,7 @@ class VectorStoreService {
         for (let i = 0; i < formattedEntries.length; i += CHUNK_SIZE) {
             const chunk = formattedEntries.slice(i, i + CHUNK_SIZE);
             chunks.push({
-                entries: chunk.map(entry => ({
-                    ...entry,
-                    // Create a combined content field for better semantic search
-                    content: `${entry.title}\n${entry.posts.map(post => 
-                        `${post.text} ${post.tags?.join(' ') || ''}`
-                    ).join('\n')}`
-                }))
+                entries: chunk
             });
         }
 
@@ -193,10 +267,10 @@ class VectorStoreService {
             // Clean up existing resources first
             await this.cleanupExistingResources();
 
-            // Fetch data from Twos
-            const twosData = await this.fetchTwosData(userId, token);
+            // Fetch all data from Twos with pagination
+            const twosData = await this.fetchAllTwosData(userId, token);
             
-            // Format the data
+            // Format the data into markdown chunks
             const chunks = this.formatDataForVectorStore(twosData);
             
             if (chunks.length === 0) {
@@ -260,15 +334,42 @@ class VectorStoreService {
         try {
 
             const assistant = await this.openai.beta.assistants.create({
-                instructions: `You are a helpful assistant that provides information based on the user's TwosApp data. 
+                instructions: `You are a helpful assistant that provides information based on the user's TwosApp data.
 Use the vector store to search through their notes and provide relevant information.
-When answering questions, try to:
-    1. Search for relevant content in the vector store
-    2. Provide specific examples from the user's notes when applicable
-    3. Include relevant dates and context from the stored data
-    4. Quote specific parts of notes when they directly answer the user's question
-    5. ALWAYS RETURN MARKDOWN
-    6. don't add file references in the response`,
+When answering questions:
+
+1. Content Types - Clearly identify and handle:
+   - 📝 Notes: Include full note content with context
+   - ✅ Tasks: Show completion status and related details
+   - ⬜ Open Tasks: Highlight pending items
+   - 📷 Images: Include image descriptions and links
+   - ➖ Dash items: Present as list items
+   - #️⃣ Tags: Include relevant tags for context
+
+2. Search and Context:
+   - Search deeply through all content types
+   - Provide full context including list titles and links
+   - Include dates and temporal context when available
+   - Show relationships between items (e.g., tasks in the same list)
+
+3. Response Format:
+   - ALWAYS RETURN IN MARKDOWN
+   - Use appropriate icons for different content types (📝✅⬜📷➖)
+   - Include Twos links for direct access
+   - Format lists and sublists with proper indentation
+   - Don't include file references in the response
+
+4. When listing tasks:
+   - Clearly separate completed vs open tasks
+   - Maintain original formatting and checkboxes
+   - Include any associated notes or context
+   - Show task metadata (dates, tags, etc.)
+
+5. For images and attachments:
+   - Include markdown image links
+   - Provide image descriptions
+   - Show related notes or context
+   - Include original URLs when available`,
                 model: "gpt-4o-mini",
                 tools: [{"type": "file_search"}],
                 name: "Twosapp Chat ",
