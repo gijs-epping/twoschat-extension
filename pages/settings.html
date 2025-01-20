@@ -6,34 +6,38 @@
 </head>
 <body>
   <div class="container">
-    <div class="section">
-      <h2>Welcome to TwosChat </h2>
-      
-      <div id="login-form" class="login-form">
+    <div class="header">
+      <h1>Welcome to TwosChat</h1>
+      <p class="subtitle">Chat with your twosapp data</p>
+    </div>
+
+    <div id="login-form" class="section">
+      <h2>Twosapp login</h2>
+      <div class="login-form">
         <div class="input-group">
-          <label for="username">Username</label>
-          <input type="text" id="username" placeholder="Enter your username">
+          <label>Username:</label>
+          <input type="text" id="username">
         </div>
         
         <div class="input-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" placeholder="Enter your password">
+          <label>Password:</label>
+          <input type="password" id="password">
         </div>
         
-        <button id="login-btn" class="login-btn">Login</button>
-        
+        <button id="login-btn" class="action-btn">Login</button>
         <div id="auth-status" class="status-text"></div>
       </div>
     </div>
     
     <div id="settings-form" class="section" style="display: none;">
-      <h3>OpenAI Settings</h3>
+      <h2>OpenAI API Key</h2>
+      <a href="https://platform.openai.com/api-keys" target="_blank" class="api-link">Get your api key here</a>
       <div class="input-group">
-        <input type="password" id="openai-token" placeholder="Enter OpenAI API Key">
-        <button id="save-btn">Save</button>
+        <input type="password" id="openai-token" placeholder="Enter your API key">
+        <button id="save-btn" class="action-btn">Save</button>
       </div>
-      <div class="input-group" style="margin-top: 20px;">
-        <button id="open-chat-btn" class="login-btn" style="display: none;">Open TwosChat</button>
+      <div class="input-group" style="margin-top: 10px;">
+        <button id="open-chat-btn" class="action-btn" style="display: none;">Open TwosChat</button>
       </div>
     </div>
   </div>

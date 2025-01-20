@@ -170,7 +170,7 @@ class VectorStoreService {
                 case 'photo':
                     prefix = '📷';
                     if (post.photos && post.photos.length > 0) {
-                        content = `[Photo] ${post.text}\n  ![Photo](${post.photos[0]})`;
+                        content = `${post.text}\n  Photo URL: ${post.photos[0]}`;
                     }
                     break;
                 case 'dash':
@@ -182,7 +182,7 @@ class VectorStoreService {
 
             let formattedPost = `${prefix} ${content}`;
             if (post.url) {
-                formattedPost += `\n  [Link](${post.url})`;
+                formattedPost += `\n  Link: ${post.url}`;
             }
             if (post.tags?.length) {
                 formattedPost += `\n  ${post.tags.map(tag => `#${tag}`).join(' ')}`;
@@ -210,7 +210,7 @@ class VectorStoreService {
                     photos: post.photos
                 })),
                 // Format content as markdown
-                content: `# ${entry.title}\n[View in Twos](${twosLink})\n\n${
+                content: `# ${entry.title}\nView in Twos: ${twosLink}\n\n${
                     entryPosts.map(post => formatPost(post)).join('\n')
                 }`
             };
@@ -348,14 +348,14 @@ When answering questions:
 
 2. Search and Context:
    - Search deeply through all content types
-   - Provide full context including list titles and links
+   - When referencing a Twos list or entry, format it as: "Title (https://www.twosapp.com/...)"
    - Include dates and temporal context when available
    - Show relationships between items (e.g., tasks in the same list)
 
 3. Response Format:
    - ALWAYS RETURN IN MARKDOWN
    - Use appropriate icons for different content types (📝✅⬜📷➖)
-   - Include Twos links for direct access
+   - For Twos links, use plain text format: "Title (URL)" instead of markdown links
    - Format lists and sublists with proper indentation
    - Don't include file references in the response
 
@@ -366,10 +366,16 @@ When answering questions:
    - Show task metadata (dates, tags, etc.)
 
 5. For images and attachments:
-   - Include markdown image links
+   - For image references, use format: "Image: Description (URL)"
    - Provide image descriptions
    - Show related notes or context
-   - Include original URLs when available`,
+   - Present URLs in plain text, not markdown links
+
+6. URL Formatting:
+   - NEVER use markdown link syntax like [Title](URL)
+   - Instead use plain text format: "Title (URL)"
+   - For Twos links: "List Title (https://www.twosapp.com/...)"
+   - For other links: "Link Description (https://...)"`,
                 model: "gpt-4o-mini",
                 tools: [{"type": "file_search"}],
                 name: "Twosapp Chat ",

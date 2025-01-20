@@ -7,7 +7,26 @@ body {
 }
 
 .container {
-  padding: 20px;
+  padding: 15px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 15px;
+}
+
+.header h1 {
+  margin: 0 0 5px 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.subtitle {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
 }
 
 .section {
@@ -15,72 +34,79 @@ body {
 }
 
 h2 {
-  margin: 0 0 20px 0;
-  font-size: 24px;
+  margin: 0 0 10px 0;
+  font-size: 18px;
   color: #333;
-  text-align: center;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 label {
   font-size: 14px;
-  color: #666;
+  color: #333;
 }
 
 input {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   font-size: 14px;
   width: 100%;
   box-sizing: border-box;
+  height: 32px;
 }
 
 input:focus {
   outline: none;
-  border-color: #0084ff;
-  box-shadow: 0 0 0 2px rgba(0,132,255,0.1);
+  border-color: #92dba4;
+  box-shadow: 0 0 0 2px rgba(146, 219, 164, 0.1);
 }
 
-.login-btn {
-  padding: 10px;
+.action-btn {
+  padding: 8px;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   background: #92dba4;
   color: #333;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
-  width: 100%;
-  margin-top: 10px;
+  width: fit-content;
+  min-width: 70px;
 }
 
-.login-btn:hover {
+.action-btn:hover {
   background: #7ec892;
 }
 
-.login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.api-link {
+  display: block;
+  color: #4a90e2;
+  text-decoration: none;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.api-link:hover {
+  text-decoration: underline;
 }
 
 .status-text {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
   text-align: center;
-  min-height: 20px;
+  min-height: 18px;
 }
 
 .status-text.error {
@@ -89,29 +115,4 @@ input:focus {
 
 .status-text.success {
   color: #28a745;
-}
-
-#settings-form {
-  border-top: 1px solid #eee;
-  padding-top: 20px;
-}
-
-#settings-form .input-group {
-  flex-direction: row;
-  gap: 8px;
-}
-
-#save-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #0084ff;
-  color: white;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-#save-btn:hover {
-  background: #0073e6;
 }
